@@ -29,7 +29,8 @@ main{max-width:900px;margin:auto;padding:24px}
 h2.st{font:700 20px 'Space Grotesk';margin:0 0 4px}
 .muted{color:var(--muted);font-size:13px}
 textarea{font-family:'JetBrains Mono',monospace;color:#fff;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:14px;outline:none;font-size:14px;width:100%;min-height:90px;resize:vertical}
-.mcchat{background:#100010;border:2px solid #2a2a3a;border-radius:8px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:15px;min-height:80px;margin-top:12px;text-shadow:2px 2px 0 rgba(0,0,0,.7)}
+.mcchat{background-color:rgba(12,6,2,.93);background-image:repeating-conic-gradient(rgba(255,255,255,.025) 0% 25%,transparent 0% 50%);background-size:6px 6px;border:2px solid #2a2a3a;border-radius:8px;padding:14px;font-family:'Monocraft','JetBrains Mono',monospace;font-size:15px;min-height:80px;margin-top:12px;text-shadow:2px 2px 0 rgba(0,0,0,.7)}
+@font-face{font-family:'Monocraft';src:url('https://cdn.jsdelivr.net/gh/IdreesInc/Monocraft@main/dist/Monocraft-ttf/Monocraft.ttf') format('truetype');font-display:swap}
 .mcchat.anim{animation:hueSpin 4s linear infinite}
 @keyframes hueSpin{to{filter:hue-rotate(360deg)}}
 .gstop{display:flex;align-items:center;gap:6px}
@@ -84,6 +85,7 @@ footer strong{color:#fff}
       <button type="button" class="btn" id="gUnder">U</button>
       <select id="gFont" style="max-width:170px"><option value="mc">Minecraft</option><option value="pixel">Pixel</option><option value="retro">Retro</option><option value="neon">Neón</option></select>
       <label class="muted" style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" id="gAnim" style="width:auto"> Animado ✨</label>
+      <input id="gNick" maxlength="16" placeholder="Nick: Steve" style="max-width:150px">
     </div>
     <div class="mcchat" id="gPrev" style="font-size:19px"></div>
     <h2 class="st" style="margin-top:14px">📤 Salidas</h2>
@@ -162,7 +164,7 @@ paint();
     fetch('https://api.jsonbin.io/v3/b/6aac6a86ffd5d1605313c161',{method:'PUT',headers:{'Content-Type':'application/json','X-Access-Key':'$2a$10$XbVd43wzBhlIfE1632782ePKNz5e/MaX25U3NJ5JRIBKtJt0ILnXC','X-Bin-Versioning':'false'},body:JSON.stringify({visits:v})}).catch(function(){});
   }).catch(function(){el.textContent='—'});
 })();
-const FONTS={mc:"'JetBrains Mono',monospace",pixel:"'Press Start 2P',monospace",retro:"'VT323',monospace",neon:"'Silkscreen',monospace"};
+const FONTS={mc:"'Monocraft','JetBrains Mono',monospace",pixel:"'Press Start 2P',monospace",retro:"'VT323',monospace",neon:"'Silkscreen',monospace"};
 const FSIZE={mc:"19px",pixel:"13px",retro:"26px",neon:"15px"};
 let gCols=["#ff5555","#5555ff"],gB=false,gI=false,gU=false;
 function hexRgb(h){h=h.replace('#','');return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]}
@@ -194,7 +196,7 @@ document.getElementById('gDel').addEventListener('click',()=>{if(gCols.length>2)
     paintGrad();
   });
 });
-['gTxt','gFont','gAnim'].forEach(id=>document.getElementById(id).addEventListener('input',paintGrad));
+['gTxt','gFont','gAnim','gNick'].forEach(id=>document.getElementById(id).addEventListener('input',paintGrad));
 document.getElementById('gFont').addEventListener('change',paintGrad);
 function escG(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 function paintGrad(){
@@ -205,7 +207,8 @@ function paintGrad(){
   const prev=document.getElementById('gPrev');
   prev.style.fontFamily=FONTS[font];prev.style.fontSize=FSIZE[font];
   prev.classList.toggle('anim',document.getElementById('gAnim').checked);
-  prev.innerHTML=[...txt].map((ch,i)=>`<span style="color:${cols[i]};${deco}">${ch===' '?'&nbsp;':escG(ch)}</span>`).join('');
+  const nick=(document.getElementById('gNick').value||'Steve').slice(0,16);
+  prev.innerHTML=`<span style="color:#aaa">&lt;${escG(nick)}&gt; </span>`+[...txt].map((ch,i)=>`<span style="color:${cols[i]};${deco}">${ch===' '?'&nbsp;':escG(ch)}</span>`).join('');
   let leg='';
   [...txt].forEach((ch,i)=>{
     const h=cols[i].replace('#','');
