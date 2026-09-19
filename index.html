@@ -218,8 +218,10 @@ function paintGrad(){
   const prev=document.getElementById('gPrev');
   prev.style.fontFamily=FONTS[font];prev.style.fontSize=FSIZE[font];
   prev.classList.toggle('anim',document.getElementById('gAnim').checked);
+  const mode=document.getElementById('gMode').value;
   const nick=(document.getElementById('gNick').value||'Steve').slice(0,16);
-  prev.innerHTML=`<span style="color:#aaa">&lt;${escG(nick)}&gt; </span>`+[...txt].map((ch,i)=>`<span style="color:${cols[i]};${deco}">${ch===' '?'&nbsp;':escG(ch)}</span>`).join('');
+  const pre=mode==='chat'?`<span style="color:#aaa">&lt;${escG(nick)}&gt; </span>`:'';
+  prev.innerHTML=pre+[...txt].map((ch,i)=>`<span style="color:${cols[i]};${deco}">${ch===' '?'&nbsp;':escG(ch)}</span>`).join('');
   let leg='';
   [...txt].forEach((ch,i)=>{
     const h=cols[i].replace('#','');
@@ -237,7 +239,6 @@ function paintGrad(){
     return o;
   });
   document.getElementById('gJson').textContent=JSON.stringify(comp);
-  const mode=document.getElementById('gMode').value;
   const note=document.getElementById('modeNote'),rbox=document.getElementById('renameBox');
   if(mode==='tab'){
     note.textContent=`TAB: ${txt.length} caracteres. Los plugins de TAB (TAB, StyledChat) aceptan MiniMessage y §x tal cual.`;
