@@ -84,10 +84,20 @@ footer strong{color:#fff}
       <button type="button" class="btn" id="gItal">I</button>
       <button type="button" class="btn" id="gUnder">U</button>
       <select id="gFont" style="max-width:170px"><option value="mc">Minecraft</option><option value="pixel">Pixel</option><option value="retro">Retro</option><option value="neon">Neón</option></select>
+      <select id="gMode" style="max-width:170px"><option value="chat">💬 Chat</option><option value="tab">📋 TAB</option><option value="rename">🏷️ Rename item</option></select>
       <label class="muted" style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" id="gAnim" style="width:auto"> Animado ✨</label>
       <input id="gNick" maxlength="16" placeholder="Nick: Steve" style="max-width:150px">
     </div>
     <div class="mcchat" id="gPrev" style="font-size:19px"></div>
+    <small id="modeNote" class="muted"></small>
+    <div id="renameBox" style="display:none">
+      <p class="muted"><b>🏷️ Rename (≤1.20.4 NBT):</b></p>
+      <pre class="tpl" id="gRename1" style="white-space:pre-wrap;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px;font-size:12px;font-family:monospace;overflow-x:auto"></pre>
+      <div class="rowbtns"><button type="button" class="btn" id="gCpR1">Copiar 📋</button></div>
+      <p class="muted"><b>🏷️ Rename (1.20.5+ componentes):</b></p>
+      <pre class="tpl" id="gRename2" style="white-space:pre-wrap;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px;font-size:12px;font-family:monospace;overflow-x:auto"></pre>
+      <div class="rowbtns"><button type="button" class="btn" id="gCpR2">Copiar 📋</button></div>
+    </div>
     <h2 class="st" style="margin-top:14px">📤 Salidas</h2>
     <p class="muted"><b>Legacy (§x · 1.16+):</b></p>
     <pre class="tpl" id="gLegacy" style="white-space:pre-wrap;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px;font-size:12px;font-family:monospace;overflow-x:auto"></pre>
@@ -198,6 +208,7 @@ document.getElementById('gDel').addEventListener('click',()=>{if(gCols.length>2)
 });
 ['gTxt','gFont','gAnim','gNick'].forEach(id=>document.getElementById(id).addEventListener('input',paintGrad));
 document.getElementById('gFont').addEventListener('change',paintGrad);
+document.getElementById('gMode').addEventListener('change',paintGrad);
 function escG(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 function paintGrad(){
   const txt=document.getElementById('gTxt').value||'Mi Servidor';
@@ -226,8 +237,23 @@ function paintGrad(){
     return o;
   });
   document.getElementById('gJson').textContent=JSON.stringify(comp);
+  const mode=document.getElementById('gMode').value;
+  const note=document.getElementById('modeNote'),rbox=document.getElementById('renameBox');
+  if(mode==='tab'){
+    note.textContent=`TAB: ${txt.length} caracteres. Los plugins de TAB (TAB, StyledChat) aceptan MiniMessage y §x tal cual.`;
+    rbox.style.display='none';
+  }else if(mode==='rename'){
+    note.textContent='Rename: comandos listos para consola. El yunque del juego no acepta códigos.';
+    rbox.style.display='block';
+    const extra=JSON.stringify(comp).slice(1,-1);
+    document.getElementById('gRename1').textContent=`/give @p minecraft:name_tag{display:{Name:'{"text":"","extra":[${extra}]}'}} 1`;
+    document.getElementById('gRename2').textContent=`/give @p minecraft:name_tag[minecraft:custom_name=[${extra}]] 1`;
+  }else{
+    note.textContent='';
+    rbox.style.display='none';
+  }
 }
-[['gCpL','gLegacy'],['gCpM','gMini'],['gCpJ','gJson']].forEach(([b,o])=>{
+[['gCpL','gLegacy'],['gCpM','gMini'],['gCpJ','gJson'],['gCpR1','gRename1'],['gCpR2','gRename2']].forEach(([b,o])=>{
   document.getElementById(b).addEventListener('click',async()=>{
     const t=document.getElementById(o).textContent;
     try{await navigator.clipboard.writeText(t);alert('¡Copiado! 📋')}catch(e){alert('No se pudo copiar.')}
