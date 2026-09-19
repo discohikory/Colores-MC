@@ -10,7 +10,7 @@
 <meta name="description" content="Colores § en vivo: escribe con códigos de formato Minecraft y previsualiza como en el juego.">
 <title>Colores § — Discohikorybrs</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&family=Press+Start+2P&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&family=Press+Start+2P&family=JetBrains+Mono:wght@400;700&family=VT323&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#04060d;--panel:rgba(15,20,35,.55);--line:rgba(139,92,246,.2);--text:#f5f7ff;--muted:#9da8c5;--a:#8b5cf6}
 *{box-sizing:border-box}html{scroll-behavior:smooth}
@@ -30,6 +30,11 @@ h2.st{font:700 20px 'Space Grotesk';margin:0 0 4px}
 .muted{color:var(--muted);font-size:13px}
 textarea{font-family:'JetBrains Mono',monospace;color:#fff;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:14px;outline:none;font-size:14px;width:100%;min-height:90px;resize:vertical}
 .mcchat{background:#100010;border:2px solid #2a2a3a;border-radius:8px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:15px;min-height:80px;margin-top:12px;text-shadow:2px 2px 0 rgba(0,0,0,.7)}
+.mcchat.anim{animation:hueSpin 4s linear infinite}
+@keyframes hueSpin{to{filter:hue-rotate(360deg)}}
+.gstop{display:flex;align-items:center;gap:6px}
+.gstop input[type=color]{width:44px;height:34px;padding:2px;border:1px solid rgba(255,255,255,.2);border-radius:8px;background:#000;cursor:pointer}
+#gFont{max-width:170px}
 .palette{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;margin:12px 0}
 .sw{border-radius:8px;padding:10px 4px;text-align:center;font-family:monospace;font-size:12px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,.15);color:#fff;text-shadow:1px 1px 0 #000}
 .sw small{display:block;font-weight:400;opacity:.8}
@@ -65,6 +70,32 @@ footer strong{color:#fff}
   <div class="card glass">
     <h2 class="st">🎨 Paleta (clic para insertar)</h2>
     <div class="palette" id="pal"></div>
+  </div>
+  <div class="card glass">
+    <h2 class="st">🌈 Degradado RGB estilo Birdflop</h2>
+    <p class="muted">Escribe, pon colores, elige tipografía y copia en 3 formatos.</p>
+    <label>Texto<input id="gTxt" maxlength="60" placeholder="Mi Servidor PRO"></label>
+    <div id="gStops" style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0"></div>
+    <div class="rowbtns">
+      <button type="button" class="btn" id="gAdd">+ Color</button>
+      <button type="button" class="btn" id="gDel">− Quitar</button>
+      <button type="button" class="btn" id="gBold">B</button>
+      <button type="button" class="btn" id="gItal">I</button>
+      <button type="button" class="btn" id="gUnder">U</button>
+      <select id="gFont" style="max-width:170px"><option value="mc">Minecraft</option><option value="pixel">Pixel</option><option value="retro">Retro</option><option value="neon">Neón</option></select>
+      <label class="muted" style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" id="gAnim" style="width:auto"> Animado ✨</label>
+    </div>
+    <div class="mcchat" id="gPrev" style="font-size:19px"></div>
+    <h2 class="st" style="margin-top:14px">📤 Salidas</h2>
+    <p class="muted"><b>Legacy (§x · 1.16+):</b></p>
+    <pre class="tpl" id="gLegacy" style="white-space:pre-wrap;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px;font-size:12px;font-family:monospace;overflow-x:auto"></pre>
+    <div class="rowbtns"><button type="button" class="btn" id="gCpL">Copiar legacy 📋</button></div>
+    <p class="muted"><b>MiniMessage (Paper):</b></p>
+    <pre class="tpl" id="gMini" style="white-space:pre-wrap;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px;font-size:12px;font-family:monospace;overflow-x:auto"></pre>
+    <div class="rowbtns"><button type="button" class="btn" id="gCpM">Copiar MiniMessage 📋</button></div>
+    <p class="muted"><b>JSON (tellraw):</b></p>
+    <pre class="tpl" id="gJson" style="white-space:pre-wrap;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px;font-size:12px;font-family:monospace;overflow-x:auto;max-height:150px;overflow-y:auto"></pre>
+    <div class="rowbtns"><button type="button" class="btn" id="gCpJ">Copiar JSON 📋</button></div>
   </div>
 </main>
 <section style="max-width:900px;margin:6px auto 0;padding:0 24px">
@@ -131,6 +162,75 @@ paint();
     fetch('https://api.jsonbin.io/v3/b/6aac6a86ffd5d1605313c161',{method:'PUT',headers:{'Content-Type':'application/json','X-Access-Key':'$2a$10$XbVd43wzBhlIfE1632782ePKNz5e/MaX25U3NJ5JRIBKtJt0ILnXC','X-Bin-Versioning':'false'},body:JSON.stringify({visits:v})}).catch(function(){});
   }).catch(function(){el.textContent='—'});
 })();
+const FONTS={mc:"'JetBrains Mono',monospace",pixel:"'Press Start 2P',monospace",retro:"'VT323',monospace",neon:"'Silkscreen',monospace"};
+const FSIZE={mc:"19px",pixel:"13px",retro:"26px",neon:"15px"};
+let gCols=["#ff5555","#5555ff"],gB=false,gI=false,gU=false;
+function hexRgb(h){h=h.replace('#','');return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]}
+function hex(c){return '#'+c.map(v=>Math.round(Math.max(0,Math.min(255,v))).toString(16).padStart(2,'0')).join('')}
+function gradColors(n){
+  if(n<=0)return[];
+  if(gCols.length===1)return Array(n).fill(gCols[0]);
+  const out=[],segs=gCols.length-1;
+  for(let i=0;i<n;i++){
+    const t=i/(n-1||1)*segs,s=Math.min(segs-1,Math.floor(t)),f=t-s;
+    const a=hexRgb(gCols[s]),b=hexRgb(gCols[s+1]);
+    out.push(hex([a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f,a[2]+(b[2]-a[2])*f]));
+  }
+  return out;
+}
+function paintStops(){
+  document.getElementById('gStops').innerHTML=gCols.map((c,i)=>`<span class="gstop"><input type="color" value="${c}" data-gc="${i}"></span>`).join('');
+}
+document.getElementById('gStops').addEventListener('input',e=>{
+  const t=e.target.closest?e.target.closest('[data-gc]'):null;
+  if(!t)return;gCols[Number(t.dataset.gc)]=t.value;paintGrad();
+});
+document.getElementById('gAdd').addEventListener('click',()=>{if(gCols.length<6){gCols.push('#ffffff');paintStops();paintGrad()}});
+document.getElementById('gDel').addEventListener('click',()=>{if(gCols.length>2){gCols.pop();paintStops();paintGrad()}});
+[['gBold','gB'],['gItal','gI'],['gUnder','gU']].forEach(([id,k])=>{
+  document.getElementById(id).addEventListener('click',e=>{
+    if(k==='gB')gB=!gB;else if(k==='gI')gI=!gI;else gU=!gU;
+    e.target.style.borderColor=(k==='gB'?gB:(k==='gI'?gI:gU))?'#fbbf24':'';
+    paintGrad();
+  });
+});
+['gTxt','gFont','gAnim'].forEach(id=>document.getElementById(id).addEventListener('input',paintGrad));
+document.getElementById('gFont').addEventListener('change',paintGrad);
+function escG(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function paintGrad(){
+  const txt=document.getElementById('gTxt').value||'Mi Servidor';
+  const font=document.getElementById('gFont').value;
+  const cols=gradColors(txt.length);
+  const deco=`${gB?'font-weight:bold;':''}${gI?'font-style:italic;':''}${gU?'text-decoration:underline;':''}`;
+  const prev=document.getElementById('gPrev');
+  prev.style.fontFamily=FONTS[font];prev.style.fontSize=FSIZE[font];
+  prev.classList.toggle('anim',document.getElementById('gAnim').checked);
+  prev.innerHTML=[...txt].map((ch,i)=>`<span style="color:${cols[i]};${deco}">${ch===' '?'&nbsp;':escG(ch)}</span>`).join('');
+  let leg='';
+  [...txt].forEach((ch,i)=>{
+    const h=cols[i].replace('#','');
+    leg+=`§x${[...h].map(c=>'§'+c).join('')}`;
+    if(gB)leg+='§l';if(gI)leg+='§o';if(gU)leg+='§n';
+    leg+=ch;
+  });
+  document.getElementById('gLegacy').textContent=leg;
+  const tags=`${gB?'<bold>':''}${gI?'<italic>':''}${gU?'<underlined>':''}`;
+  const close=`${gU?'</underlined>':''}${gI?'</italic>':''}${gB?'</bold>':''}`;
+  document.getElementById('gMini').textContent=`<gradient:${gCols.join(':')}>${tags}${txt}${close}</gradient>`;
+  const comp=[...txt].map((ch,i)=>{
+    const o={text:ch,color:cols[i]};
+    if(gB)o.bold=true;if(gI)o.italic=true;if(gU)o.underlined=true;
+    return o;
+  });
+  document.getElementById('gJson').textContent=JSON.stringify(comp);
+}
+[['gCpL','gLegacy'],['gCpM','gMini'],['gCpJ','gJson']].forEach(([b,o])=>{
+  document.getElementById(b).addEventListener('click',async()=>{
+    const t=document.getElementById(o).textContent;
+    try{await navigator.clipboard.writeText(t);alert('¡Copiado! 📋')}catch(e){alert('No se pudo copiar.')}
+  });
+});
+paintStops();paintGrad();
 </script>
 </body>
 </html>
